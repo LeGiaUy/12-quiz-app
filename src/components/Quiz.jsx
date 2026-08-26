@@ -6,7 +6,7 @@ import QUESTIONS from "../questions.js";
 import quizCompleteImg from "../assets/quiz-complete.png";
 
 // import components
-import QuestionTimer from "./QuestionTimer.jsx";
+import Question from "./Question.jsx";
 
 export default function Quiz() {
   // state quản lý câu hỏi nào đang được hiển thị
@@ -19,28 +19,51 @@ export default function Quiz() {
   // state quản lý những câu trả lời được người dùng lựa chọn
   const [userAnswers, setUserAnswers] = useState([]);
 
+  // state quản lý xem người dùng đã chọn câu trả lời hay chưa
+  const [answerState, setAnswerState] = useState("");
+
   // biến chứa index của câu hỏi tính bằng độ dài của mảng câu trả lời
   // mảng chứa 2 câu trả lời => index = 2 => câu hỏi thứ 3
-  const activeQuestionIndex = userAnswers.length;
+  // chỉ thay đổi khi answerState được reset hoặc mới được khởi tạo
+  const activeQuestionIndex =
+    answerState === "" ? userAnswers.length : userAnswers.length - 1;
 
   // biến để xử lý khi hết câu hỏi
   const quizIsComplete = activeQuestionIndex === QUESTIONS.length;
 
   // Hàm xử lý chọn câu trả lời
   // sử dụng useCallback để hàm handleSelectAnswer không bị tạo mới khi re-render
-  const handleSelectAnswer = useCallback((selectedAnswer) => {
-    // Cập nhật mảng các câu trả lời dựa vào state trước đó và thêm câu trả lời mới vào mảng
-    setUserAnswers((prevUserAnswer) => {
-      // thêm câu trả lời đã chọn vào sau mảng các câu trả lời đã chọn
-      return [...prevUserAnswer, selectedAnswer];
-    });
-  }, []);
+  // trừ khi dependencies thay đổi
+  const handleSelectAnswer = useCallback(
+    (selectedAnswer) => {
+      // chuyển state thành người dùng đã chọn câu trả lời
+      setAnswerState("answered");
+      // Cập nhật mảng các câu trả lời dựa vào state trước đó và thêm câu trả lời mới vào mảng
+      setUserAnswers((prevUserAnswer) => {
+        // thêm câu trả lời đã chọn vào sau mảng các câu trả lời đã chọn
+        return [...prevUserAnswer, selectedAnswer];
+      });
+
+      // chuyển state answerState thành 'correct' hoặc 'wrong'
+      setTimeout(() => {
+        if (selectedAnswer === QUESTIONS[activeQuestionIndex].answers[0]) {
+          setAnswerState("correct");
+        } else {
+          setAnswerState("wrong");
+        }
+
+        // reset state của answerState để activeQuestionIndex thay đổi
+        setTimeout(() => {
+          setAnswerState("");
+        }, 2000);
+      }, 1000);
+    },
+    [activeQuestionIndex],
+  );
 
   // hàm xử lý skip câu trả lời bằng cách gọi hàm handleSelectAnswer và truyền vào null
   // sử dụng callBack để hàm handleSkipAnswer không bị tạo lại khi component re-render
-  // trừ khi dependencies thay đổi nhưng trong trường hợp này thì dependecies không bao giờ thay đổi
-  // dependencies là hàm handleSelectAnswer đã được bọc trong callBack nên không bao giờ thay đổi
-  // cho nên hàm này cũng sẽ không bao giờ thay đổi
+  // trừ khi dependencies thay đổi
   const handleSkipAnswer = useCallback(() => {
     handleSelectAnswer(null);
   }, [handleSelectAnswer]);
@@ -55,52 +78,17 @@ export default function Quiz() {
     );
   }
 
-  // biến chứa các câu trả lời của câu hỏi hiện tại để thực hiện xáo trộn các câu trả lời
-  // biến này đặt ở sau if block trên bởi vì
-  // nếu trước khi thực hiện trả về màn hình hoàn thành mà vẫn cố truy cập vào index lớn hơn index lớn nhất trong mảng
-  // thì sẽ lỗi
-  //   tức là đoạn code này chỉ hoạt động khi ta vẫn còn câu hỏi để hiện
-  const shuffledAnswer = [...QUESTIONS[activeQuestionIndex].answers];
-
-  // thực hiện xáo trộn các câu trả lời của câu hỏi hiện tại và trả về chính array đó
-  // sort() cần 1 function trả về:
-  // <0 => đổi thứ tự
-  // >0 => giữ/đảo theo quy tắc sort
-  // =0 => coi như bằng nhau
-  // trong khi đó,
-  // Math.random() sẽ trả về số thực ngẫu nhiên >=0 và <1
-  // Math.random() - 0.5 sẽ trả về số thực ngẫu nhiên >=-0.5 và <0.5, tức là có thể âm, dương hoặc =0
-  shuffledAnswer.sort(() => Math.random() - 0.5);
-
   return (
     <div id="quiz">
-      <div id="question">
-        {/* component thanh để hiện thanh progress
-        nếu không chọn câu trả lời sau 10s thì đưa null vào danh sách câu trả lời được chọn
-        Do timeout và onTimeout không thay đổi
-        nên nếu muốn QuestionTimer cũ được unmount và mount lại QuestionTimer mới
-        để useEffect trong QuestionTimer được chạy lại khi component QuestionTimer render xong
-        thì ta thêm prop key={}*/}
-        <QuestionTimer
-          key={activeQuestionIndex}
-          timeout={10000}
-          onTimeout={handleSelectAnswer}
-        />
-
-        {/* Hiển thị câu hỏi hiện tại */}
-        <h2>{QUESTIONS[activeQuestionIndex].text}</h2>
-
-        {/* Danh sách các câu trả lời */}
-        <ul id="answers">
-          {shuffledAnswer.map((answer) => (
-            <li key={answer} className="answer">
-              <button onClick={() => handleSelectAnswer(answer)}>
-                {answer}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <Question
+        key={activeQuestionIndex}
+        questionText={QUESTIONS[activeQuestionIndex].text}
+        answers={QUESTIONS[activeQuestionIndex].answers}
+        onSelectAnswer={handleSelectAnswer}
+        selectedAnswer={userAnswers[userAnswers.length - 1]}
+        answerState={answerState}
+        onSkipAnswer={handleSkipAnswer}
+      />
     </div>
   );
 }
