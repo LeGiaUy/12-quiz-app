@@ -18,11 +18,14 @@ export default function Quiz() {
 
   // state quản lý những câu trả lời được người dùng lựa chọn
   const [userAnswers, setUserAnswers] = useState([]);
+
   // biến chứa index của câu hỏi tính bằng độ dài của mảng câu trả lời
   // mảng chứa 2 câu trả lời => index = 2 => câu hỏi thứ 3
   const activeQuestionIndex = userAnswers.length;
+
   // biến để xử lý khi hết câu hỏi
   const quizIsComplete = activeQuestionIndex === QUESTIONS.length;
+
   // Hàm xử lý chọn câu trả lời
   // sử dụng useCallback để hàm handleSelectAnswer không bị tạo mới khi re-render
   const handleSelectAnswer = useCallback((selectedAnswer) => {
@@ -41,6 +44,7 @@ export default function Quiz() {
   const handleSkipAnswer = useCallback(() => {
     handleSelectAnswer(null);
   }, [handleSelectAnswer]);
+
   // Khi hết câu trả lời thì trả về màn hình hoàn thành
   if (quizIsComplete) {
     return (
@@ -57,7 +61,8 @@ export default function Quiz() {
   // thì sẽ lỗi
   //   tức là đoạn code này chỉ hoạt động khi ta vẫn còn câu hỏi để hiện
   const shuffledAnswer = [...QUESTIONS[activeQuestionIndex].answers];
-  // thực xáo trộn các câu trả lời của câu hỏi hiện tại và trả về chính array đó
+
+  // thực hiện xáo trộn các câu trả lời của câu hỏi hiện tại và trả về chính array đó
   // sort() cần 1 function trả về:
   // <0 => đổi thứ tự
   // >0 => giữ/đảo theo quy tắc sort
@@ -81,8 +86,10 @@ export default function Quiz() {
           timeout={10000}
           onTimeout={handleSelectAnswer}
         />
+
         {/* Hiển thị câu hỏi hiện tại */}
         <h2>{QUESTIONS[activeQuestionIndex].text}</h2>
+
         {/* Danh sách các câu trả lời */}
         <ul id="answers">
           {shuffledAnswer.map((answer) => (

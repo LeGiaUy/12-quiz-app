@@ -7,6 +7,7 @@ function App() {
     <>
       {/* Header */}
       <Header />
+
       {/* Hiển thị câu hỏi và câu trả lời */}
       <main>
         <Quiz />
