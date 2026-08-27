@@ -20,6 +20,19 @@ export default function Question({ index, onSelectAnswer, onSkipAnswer }) {
     isCorrect: null,
   });
 
+  // biến quản lý só giây để skip sang câu hỏi mới
+  let timer = 10000;
+
+  // nếu người dùng đã chọn câu trả lời => sau 1 giây sẽ hết thanh progress
+  if (answer.selectedAnswer) {
+    timer = 1000;
+  }
+
+  // nếu câu trả lời đã có trạng thái đúng sai => sau 2 giây sẽ chuyển sang câu hỏi khác
+  if (answer.isCorrect) {
+    timer = 2000;
+  }
+
   function handleSelectAnswer(answer) {
     // cập nhật trạng thái của câu trả lời
     setAnswer({
@@ -63,7 +76,12 @@ export default function Question({ index, onSelectAnswer, onSkipAnswer }) {
         nên nếu muốn QuestionTimer cũ được unmount và mount lại QuestionTimer mới
         để useEffect trong QuestionTimer được chạy lại khi component QuestionTimer render xong
         thì ta thêm prop index={}*/}
-      <QuestionTimer timeout={10000} onTimeout={onSkipAnswer} />
+      <QuestionTimer
+        key={timer}
+        timeout={timer}
+        onTimeout={answer.selectedAnswer === "" ? onSkipAnswer : null}
+        mode={answerState}
+      />
 
       {/* Hiển thị câu hỏi hiện tại */}
       <h2>{QUESTIONS[index].text}</h2>

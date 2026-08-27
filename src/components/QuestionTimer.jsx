@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 // component thanh để hiện thanh progress
 // nếu không chọn câu trả lời sau {timeout} mili giây thì gọi hàm onTimeout
-export default function QuestionTimer({ timeout, onTimeout }) {
+export default function QuestionTimer({ timeout, onTimeout, mode }) {
   // state quản lý thời gian còn lại để update thanh progress
   const [remainingTime, setRemainingTime] = useState(timeout);
 
@@ -36,5 +36,12 @@ export default function QuestionTimer({ timeout, onTimeout }) {
   }, []);
 
   // thanh progress
-  return <progress id="question-time" max={timeout} value={remainingTime} />;
+  return (
+    <progress
+      id="question-time"
+      max={timeout}
+      value={remainingTime}
+      className={mode}
+    />
+  );
 }
