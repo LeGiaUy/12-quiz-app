@@ -2,11 +2,10 @@
 import { useState, useCallback } from "react";
 // import dummy data
 import QUESTIONS from "../questions.js";
-// import assets
-import quizCompleteImg from "../assets/quiz-complete.png";
 
 // import components
 import Question from "./Question.jsx";
+import Summary from "./Summary.jsx";
 
 export default function Quiz() {
   // state quản lý câu hỏi nào đang được hiển thị
@@ -47,12 +46,7 @@ export default function Quiz() {
 
   // Khi hết câu trả lời thì trả về màn hình hoàn thành
   if (quizIsComplete) {
-    return (
-      <div id="summary">
-        <img src={quizCompleteImg} alt="Tropy Icon" />
-        <h2>Quiz Completed!</h2>
-      </div>
-    );
+    return <Summary userAnswers={userAnswers} />;
   }
 
   return (

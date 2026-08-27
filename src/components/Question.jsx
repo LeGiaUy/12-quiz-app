@@ -28,7 +28,7 @@ export default function Question({ index, onSelectAnswer, onSkipAnswer }) {
     timer = 1000;
   }
 
-  // nếu câu trả lời đã có trạng thái đúng sai => sau 2 giây sẽ chuyển sang câu hỏi khác
+  // nếu câu trả lời có trạng thái đúng hoặc sai thì tạo lại thanh progress với timer là 2 giây
   if (answer.isCorrect) {
     timer = 2000;
   }
