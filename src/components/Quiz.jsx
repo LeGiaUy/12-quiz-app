@@ -19,14 +19,10 @@ export default function Quiz() {
   // state quản lý những câu trả lời được người dùng lựa chọn
   const [userAnswers, setUserAnswers] = useState([]);
 
-  // state quản lý xem người dùng đã chọn câu trả lời hay chưa
-  const [answerState, setAnswerState] = useState("");
-
   // biến chứa index của câu hỏi tính bằng độ dài của mảng câu trả lời
   // mảng chứa 2 câu trả lời => index = 2 => câu hỏi thứ 3
   // chỉ thay đổi khi answerState được reset hoặc mới được khởi tạo
-  const activeQuestionIndex =
-    answerState === "" ? userAnswers.length : userAnswers.length - 1;
+  const activeQuestionIndex = userAnswers.length;
 
   // biến để xử lý khi hết câu hỏi
   const quizIsComplete = activeQuestionIndex === QUESTIONS.length;
@@ -34,32 +30,13 @@ export default function Quiz() {
   // Hàm xử lý chọn câu trả lời
   // sử dụng useCallback để hàm handleSelectAnswer không bị tạo mới khi re-render
   // trừ khi dependencies thay đổi
-  const handleSelectAnswer = useCallback(
-    (selectedAnswer) => {
-      // chuyển state thành người dùng đã chọn câu trả lời
-      setAnswerState("answered");
-      // Cập nhật mảng các câu trả lời dựa vào state trước đó và thêm câu trả lời mới vào mảng
-      setUserAnswers((prevUserAnswer) => {
-        // thêm câu trả lời đã chọn vào sau mảng các câu trả lời đã chọn
-        return [...prevUserAnswer, selectedAnswer];
-      });
-
-      // chuyển state answerState thành 'correct' hoặc 'wrong'
-      setTimeout(() => {
-        if (selectedAnswer === QUESTIONS[activeQuestionIndex].answers[0]) {
-          setAnswerState("correct");
-        } else {
-          setAnswerState("wrong");
-        }
-
-        // reset state của answerState để activeQuestionIndex thay đổi
-        setTimeout(() => {
-          setAnswerState("");
-        }, 2000);
-      }, 1000);
-    },
-    [activeQuestionIndex],
-  );
+  const handleSelectAnswer = useCallback((selectedAnswer) => {
+    // Cập nhật mảng các câu trả lời dựa vào state trước đó và thêm câu trả lời mới vào mảng
+    setUserAnswers((prevUserAnswer) => {
+      // thêm câu trả lời đã chọn vào sau mảng các câu trả lời đã chọn
+      return [...prevUserAnswer, selectedAnswer];
+    });
+  }, []);
 
   // hàm xử lý skip câu trả lời bằng cách gọi hàm handleSelectAnswer và truyền vào null
   // sử dụng callBack để hàm handleSkipAnswer không bị tạo lại khi component re-render
@@ -80,13 +57,15 @@ export default function Quiz() {
 
   return (
     <div id="quiz">
+      {/* comporent hiển thị câu hỏi, câu trả lời và thanh progress
+      key: dùng để unmount component cũ và mount component mới giúp setTimeout và setInterval trong QuestionProgress hoạt động
+      index: index của question hiện tại 
+      onSelectAnswer: truyền hàm thêm câu trả lời vào mảng của state userAnswers
+      onSkipAnswer: truyền hàm xử lý khi skip câu hỏi*/}
       <Question
         key={activeQuestionIndex}
-        questionText={QUESTIONS[activeQuestionIndex].text}
-        answers={QUESTIONS[activeQuestionIndex].answers}
+        index={activeQuestionIndex}
         onSelectAnswer={handleSelectAnswer}
-        selectedAnswer={userAnswers[userAnswers.length - 1]}
-        answerState={answerState}
         onSkipAnswer={handleSkipAnswer}
       />
     </div>

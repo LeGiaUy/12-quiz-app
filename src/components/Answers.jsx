@@ -1,11 +1,16 @@
 import { useRef } from "react";
 
+// answer: các câu trả lời của câu hỏi
+// selectedAnswer: câu trả lời được người dùng chọn
+// answerState: trạng thái của câu trả lời
+// onSelect: hàm xử lý chọn câu trả lời
 export default function Answers({
   answers,
   selectedAnswer,
   answerState,
   onSelect,
 }) {
+  // ref để shuffledAnswer không bị tạo mới khi re-render
   const shuffledAnswers = useRef();
 
   if (!shuffledAnswers.current) {
@@ -49,7 +54,12 @@ export default function Answers({
 
         return (
           <li key={answer} className="answer">
-            <button onClick={() => onSelect(answer)} className={cssClass}>
+            <button
+              onClick={() => onSelect(answer)}
+              className={cssClass}
+              // nếu câu trả lời đã được chọn thì disable toàn bộ câu trả lời
+              disabled={answerState !== ""}
+            >
               {answer}
             </button>
           </li>
