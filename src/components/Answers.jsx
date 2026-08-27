@@ -34,11 +34,12 @@ export default function Answers({
         const isSelected = selectedAnswer === answer;
         let cssClass = "";
 
-        // nếu câu người dùng đã chọn câu trả lời và câu trả lời này là câu được người dùng chọn
+        // nếu câu người dùng đã chọn câu trả lời và câu trả lời này là câu được người dùng chọn thì thay đổi className
         if (answerState === "answered" && isSelected) {
           cssClass = "selected";
         }
 
+        // Nếu câu trả là sai hoặc đúng và đây là câu trả lời mà người dùng chọn thì thay đổi className
         if (
           (answerState === "correct" || answerState === "wrong") &&
           isSelected
